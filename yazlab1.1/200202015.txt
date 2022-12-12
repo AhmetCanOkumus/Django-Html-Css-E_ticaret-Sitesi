@@ -1,0 +1,872 @@
+import tkinter
+import pandas as pd
+from tkinter import *
+import nltk 
+from nltk.corpus import stopwords
+stop = stopwords.words('english')
+
+my_filtered_csv = pd.read_csv('file.csv', usecols=['Product', 'Issue','Company','State','ZIP code','Complaint ID'])
+my_filtered_csv['Product'] = my_filtered_csv['Product'].str.replace(r'[^\w\s]+', '',regex=True)
+my_filtered_csv['Issue'] = my_filtered_csv['Issue'].str.replace(r'[^\w\s]+', '',regex=True)
+my_filtered_csv['Company'] = my_filtered_csv['Company'].str.replace(r'[^\w\s]+', '',regex=True)
+my_filtered_csv['State'] = my_filtered_csv['State'].str.replace(r'[^\w\s]+', '',regex=True)
+my_filtered_csv['Company'] = my_filtered_csv['Company'].str.replace(' OF ', '')
+
+my_filtered_csv.dropna()  
+
+my_filtered_csv['Product'] = my_filtered_csv['Product'].apply(lambda x: ' '.join([word for word in x.split() if word not in (stop)]))  #stop word kaldırma
+my_filtered_csv['Issue'] = my_filtered_csv['Issue'].apply(lambda x: ' '.join([word for word in x.split() if word not in (stop)]))  #stop word kaldırma
+my_filtered_csv['Company'] = my_filtered_csv['Company'].apply(lambda x: ' '.join([word for word in x.split() if word not in (stop)]))  #stop word kaldırma
+
+
+my_filtered_csv.to_csv('currentfile.csv') #yeni csv ye atma
+
+
+
+from untitled_python import  Ui_MainWindow
+from PyQt5.QtWidgets import *
+import pandas as pd
+import threading
+
+df = pd.read_csv('currentfile.csv', usecols=['Product', 'Issue','Company','State','ZIP code','Complaint ID'])
+df2 = pd.read_csv('currentfile.csv', usecols=['Product', 'Issue','Company','State','ZIP code','Complaint ID'])
+
+
+threads=[]
+
+
+def zipcodegetir(baslangic,zip_code,columngetir1,arananoran,self,sayac):
+    baslangic2=baslangic
+    baslangic3=baslangic
+    for i in range(len(df)):
+     baslangic3=baslangic
+     row1=baslangic2
+     arama1string=df.loc[int(row1),"columngetir1"]
+     arama1list=list(arama1string.split(" ")) #kayıtı stringe çevirme
+     arama1uzunluk=len(arama1list)
+     baslangic2=baslangic2+1
+     if(baslangic2==baslangic+sayac):
+        break     
+     for j in range(len(df)):
+        row2=baslangic3
+        arama2string=df.loc[int(row2),"columngetir2"]
+        arama2list=list(arama2string.split(" "))
+        arama2uzunluk=len(arama2list)
+        benzerkelime=list(set(arama1list).intersection(arama2list))
+        benzerkelimesayisi=len(benzerkelime)
+        if(arama1uzunluk>arama2uzunluk):
+            oran=(benzerkelimesayisi/arama1uzunluk)*100
+        if(arama1uzunluk<arama2uzunluk):
+            oran=(benzerkelimesayisi/arama2uzunluk)*100    
+        if(arama1uzunluk==arama2uzunluk):
+            oran=(benzerkelimesayisi/arama2uzunluk)*100
+        if(oran>=int(arananoran)):
+            if(df.at[int(row1),"ZIP code"]==zip_code):
+                if(df.at[int(row2),"ZIP code"]==zip_code):
+                    print("Verilen Zip code'a sahip ve belirtilen benzerlik oranındaki kayıtlar "+str(int(row1))+"  "+str(int(row2))+df.at[int(row1),columngetir1]+"  "+df.at[int(row2),columngetir1])
+        baslangic3=baslangic3+1
+
+
+
+
+
+def complaintidgetir(baslangic,complaintid,columngetir1,arananoran,self,sayac):
+    baslangic2=baslangic
+    baslangic3=baslangic
+    for i in range(len(df)):
+     baslangic3=baslangic
+     row1=baslangic2
+     arama1string=df.loc[int(row1),columngetir1]
+     arama1list=list(arama1string.split(" ")) #kayıtı stringe çevirme
+     arama1uzunluk=len(arama1list)
+     baslangic2=baslangic2+1
+     if(baslangic2==baslangic+sayac):
+        break
+     for j in range(len(df)):
+        row2=baslangic3
+        arama2string=df.loc[int(row2),columngetir1]
+        arama2list=list(arama2string.split(" "))
+        arama2uzunluk=len(arama2list)
+        benzerkelime=list(set(arama1list).intersection(arama2list))
+        benzerkelimesayisi=len(benzerkelime)
+        if(arama1uzunluk>arama2uzunluk):
+            oran=(benzerkelimesayisi/arama1uzunluk)*100
+        if(arama1uzunluk<arama2uzunluk):
+            oran=(benzerkelimesayisi/arama2uzunluk)*100    
+        if(arama1uzunluk==arama2uzunluk):
+            oran=(benzerkelimesayisi/arama2uzunluk)*100
+        if(oran>=int(arananoran)):
+            if(df.at[int(row1),"Complaint ID"]==complaintid):
+                if(df.at[int(row2),"Complaint ID"]==complaintid):
+                    print("Verilen Complaint ID'li ve belirtilen benzerlik oranındaki kayıtlar "+str(int(row1))+"  "+str(int(row2))+df.at[int(row1),columngetir1]+"  "+df.at[int(row2),columngetir1])
+        baslangic3=baslangic3+1
+
+
+
+def ikisutungetir(baslangic,columnarama,columngetir1,columngetir2,arananoran,self,sayac):
+    baslangic2=baslangic
+    baslangic3=baslangic
+    for i in range(len(df)):
+     baslangic3=baslangic
+     row1=baslangic2
+     kontrol1=df.loc[int(row1),columnarama]
+     kontrol1list=list(kontrol1.split(" "))
+     arama1string=df.loc[int(row1),columngetir1]
+     arama1list=list(arama1string.split(" ")) #kayıtı stringe çevirme
+     arama1uzunluk=len(arama1list)
+     arama11string=df.loc[int(row1),columngetir2]
+     arama11list=list(arama11string.split(" ")) #kayıtı stringe çevirme
+     arama11uzunluk=len(arama11list)
+     baslangic2=baslangic2+1
+     if(baslangic2==baslangic+sayac):
+        break
+     for j in range(len(df)):
+        row2=baslangic3
+        kontrol2=df.loc[int(row2),columnarama]
+        kontrol2list=list(kontrol2.split(" "))
+        arama2string=df.loc[int(row2),columngetir1]
+        arama2list=list(arama2string.split(" "))
+        arama2uzunluk=len(arama2list)
+        arama22string=df.loc[int(row2),columngetir2]
+        arama22list=list(arama22string.split(" "))
+        arama22uzunluk=len(arama22list)
+        benzerkelime=list(set(arama1list).intersection(arama2list))
+        benzerkelimesayisi=len(benzerkelime)
+        benzerkelime2=list(set(arama11list).intersection(arama22list))
+        benzerkelimesayisi2=len(benzerkelime2)
+        if(arama1uzunluk>arama2uzunluk ):
+            oran=(benzerkelimesayisi/arama1uzunluk)*100
+        if(arama1uzunluk<arama2uzunluk):
+            oran=(benzerkelimesayisi/arama2uzunluk)*100    
+        if(arama1uzunluk==arama2uzunluk):
+            oran=(benzerkelimesayisi/arama2uzunluk)*100
+
+        if(arama11uzunluk>arama22uzunluk):
+            oran2=(benzerkelimesayisi2/arama11uzunluk)*100
+        if(arama11uzunluk<arama22uzunluk):
+            oran2=(benzerkelimesayisi2/arama22uzunluk)*100    
+        if(arama11uzunluk==arama22uzunluk):
+            oran2=(benzerkelimesayisi2/arama22uzunluk)*100            
+        if(oran>=int(arananoran) and oran2>=int(arananoran)):
+            if(kontrol2list==kontrol1list):
+             print(columnarama+"  Aynı Olan ve "+arananoran+" ve üzeri benzerliğe sahip kayıtlar"+str(row1)+"  "+str(row2)+"   "+df.at[int(row1),columngetir1]+"   "+df.at[int(row2),columngetir1]+"   "+df.at[int(row1),columngetir2]+"   "+df.at[int(row2),columngetir2])
+        baslangic3=baslangic3+1
+
+
+
+
+def birsutunugetir(baslangic,columnarama,columngetir1,arananoran,self,sayac):
+    baslangic2=baslangic
+    baslangic3=baslangic
+    for i in range(len(df)):
+     baslangic3=baslangic
+     row1=baslangic2
+     kontrol1=df.loc[int(row1),columnarama]
+     arama1string=df.loc[int(row1),columngetir1]
+     arama1list=list(arama1string.split(" ")) #kayıtı stringe çevirme
+     arama1uzunluk=len(arama1list)
+     baslangic2=baslangic2+1
+     if(baslangic2==baslangic+sayac):
+        break
+     for j in range(len(df)):
+        row2=baslangic3
+        kontrol2=df.loc[int(row2),columnarama]
+        arama2string=df.loc[int(row2),columngetir1]
+        arama2list=list(arama2string.split(" "))
+        arama2uzunluk=len(arama2list)
+        benzerkelime=list(set(arama1list).intersection(arama2list))
+        benzerkelimesayisi=len(benzerkelime)
+        if(arama1uzunluk>arama2uzunluk):
+            oran=(benzerkelimesayisi/arama1uzunluk)*100
+        if(arama1uzunluk<arama2uzunluk):
+            oran=(benzerkelimesayisi/arama2uzunluk)*100    
+        if(arama1uzunluk==arama2uzunluk):
+            oran=(benzerkelimesayisi/arama2uzunluk)*100
+        if(oran>=int(arananoran)):
+            if(kontrol1==kontrol2):
+             print(columnarama +"  aynı olan"+arananoran+" ve üzeri benzerlikte olan "+columngetir1+" kayıtları  "+"Kayıt "+str(row1)+" ,"+str(row2)+"  "+df.at[int(row1),columngetir1]+"  "+df.at[int(row2),columngetir1])
+        baslangic3=baslangic3+1
+
+
+
+
+
+def birsutunbenzerlik(baslangic,columnn,arananoran,self,sayac):
+        baslangic2=baslangic
+        baslangic3=baslangic
+        for i in range(len(df)):
+         baslangic3=baslangic
+         row1=baslangic2
+         birincistring=df.loc[int(row1),columnn]
+         birincilist=list(birincistring.split(" ")) #kayıtı stringe çevirme
+         birinciuzunluk=len(birincilist)
+         baslangic2=baslangic2+1
+         if(baslangic2==baslangic+sayac):
+          break
+         for j in range(len(df)):
+            row2=baslangic3
+            ikincistring=df2.loc[int(row2),columnn]
+            ikincilist=list(ikincistring.split(" "))
+            ikinciuzunluk=len(ikincilist)
+            benzerkelime=list(set(birincilist).intersection(ikincilist))
+            benzerkelimesayisi=len(benzerkelime)
+            if(birinciuzunluk>ikinciuzunluk):
+                orann=(benzerkelimesayisi/birinciuzunluk)*100
+            if(ikinciuzunluk>birinciuzunluk):
+                orann=(benzerkelimesayisi/ikinciuzunluk)*100
+            if(birinciuzunluk==ikinciuzunluk):
+                orann=(benzerkelimesayisi/ikinciuzunluk)*100 
+            if(int(orann)>=int(arananoran)):
+              if(row1!=row2):
+               #self.ui.textBrowser.setText(str(row1)+" ve "+str(row2)+"kayıtları %100 ve üzeri benzerlikte")
+               print(str(int(row1))+" ve "+str(int(row2))+"  kayıtları "+arananoran+" ve üzeri benzerliktedir   "+df.at[int(row1),columnn],"  "+df.at[int(row2),columnn])
+            baslangic3=baslangic3+1
+
+
+
+class ders(QMainWindow):
+    def __init__(self):
+        received_signal="ahmet"
+        super().__init__()
+
+        self.ui=Ui_MainWindow()
+        self.ui.setupUi(self)
+
+        self.ui.Birsutungoster.clicked.connect(self.process)
+        self.ui.ayni1sutungoster.clicked.connect(self.process2)
+        self.ui.ayni2sutungoster.clicked.connect(self.process3)
+        self.ui.complaintidgetir.clicked.connect(self.process4)
+        self.ui.zipcodegetir.clicked.connect(self.process5)
+
+    def process(self):
+        
+        arananoran=self.ui.lineEdit.text()
+        thread_sayisi=self.ui.threadsayisi.text()
+        columnn=self.ui.sutunsec.text()
+        print("Aranılacak sutun: "+columnn)
+        print("Alinan benzerlik:"+arananoran)
+        print("Thread sayisi"+str(thread_sayisi))
+        
+        temp=0
+        sayac=len(df)/int(thread_sayisi)
+
+        for _ in range(int(thread_sayisi)):
+            t=threading.Thread(target=birsutunbenzerlik(temp,columnn,arananoran,self,sayac))
+            t.start()
+            threads.append(t)
+            temp=temp+sayac
+        for thread in threads:
+           thread.join()
+
+    def process2(self):
+        columnarama=self.ui.lineEdit_4.text()
+        arananoran=self.ui.lineEdit_5.text()
+        columngetir1=self.ui.lineEdit_2.text()
+        thread_sayisi=self.ui.threadsayisi.text()
+
+        temp=0
+        sayac=len(df)/int(thread_sayisi)
+
+        for _ in range(int(thread_sayisi)):
+            t=threading.Thread(target=birsutunugetir(temp,columnarama,columngetir1,arananoran,self,sayac))
+            t.start()
+            threads.append(t)
+            temp=temp+sayac
+        for thread in threads:
+           thread.join()
+
+
+    def process3(self):
+        columnarama=self.ui.lineEdit_4.text()
+        arananoran=self.ui.lineEdit_5.text()
+        columngetir1=self.ui.lineEdit_2.text()
+        columngetir2=self.ui.lineEdit_3.text()
+        thread_sayisi=self.ui.threadsayisi.text()
+
+        temp=0
+        sayac=len(df)/int(thread_sayisi)
+
+        for _ in range(int(thread_sayisi)):
+            t=threading.Thread(target=ikisutungetir(temp,columnarama,columngetir1,columngetir2,arananoran,self,sayac))
+            t.start()
+            threads.append(t)
+            temp=temp+sayac
+        for thread in threads:
+           thread.join()
+
+    def process4(self):
+        complaint_id=self.ui.lineEdit_6.text()
+        arananoran=self.ui.lineEdit_10.text()
+        columngetir1=self.ui.lineEdit_7.text()
+        thread_sayisi=self.ui.threadsayisi.text()
+
+        temp=0
+        sayac=len(df)/int(thread_sayisi)
+
+        for _ in range(int(thread_sayisi)):
+            t=threading.Thread(target=complaintidgetir(temp,complaint_id,columngetir1,arananoran,self,sayac))
+            t.start()
+            threads.append(t)
+            temp=temp+sayac
+        for thread in threads:
+           thread.join()
+
+
+    def process5(self):
+        zip_code=self.ui.lineEdit_8.text()
+        arananoran=self.ui.lineEdit_11.text()
+        columngetir1=self.ui.lineEdit_9.text()
+        thread_sayisi=self.ui.threadsayisi.text()
+        temp=0
+        sayac=len(df)/int(thread_sayisi)
+
+        for _ in range(int(thread_sayisi)):
+            t=threading.Thread(target=zipcodegetir(temp,zip_code,columngetir1,arananoran,self,sayac))
+            t.start()
+            threads.append(t)
+            temp=temp+sayac
+        for thread in threads:
+           thread.join()
+
+
+
+
+uygulama =QApplication([])
+pencere=ders()
+pencere.show()
+uygulama.exec_()
+
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'C:/Users/ahmet/Desktop/yazlab1.2/untitled.ui'
+#
+# Created by: PyQt5 UI code generator 5.6
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(671, 1003)
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit.setGeometry(QtCore.QRect(390, 50, 41, 22))
+        self.lineEdit.setObjectName("lineEdit")
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setGeometry(QtCore.QRect(290, 50, 91, 21))
+        self.label.setObjectName("label")
+        self.Birsutungoster = QtWidgets.QPushButton(self.centralwidget)
+        self.Birsutungoster.setGeometry(QtCore.QRect(90, 80, 411, 28))
+        self.Birsutungoster.setObjectName("Birsutungoster")
+        self.label_2 = QtWidgets.QLabel(self.centralwidget)
+        self.label_2.setGeometry(QtCore.QRect(0, 10, 221, 16))
+        self.label_2.setObjectName("label_2")
+        self.threadsayisi = QtWidgets.QLineEdit(self.centralwidget)
+        self.threadsayisi.setGeometry(QtCore.QRect(230, 10, 41, 22))
+        self.threadsayisi.setObjectName("threadsayisi")
+        self.label_3 = QtWidgets.QLabel(self.centralwidget)
+        self.label_3.setGeometry(QtCore.QRect(0, 50, 181, 16))
+        self.label_3.setObjectName("label_3")
+        self.sutunsec = QtWidgets.QLineEdit(self.centralwidget)
+        self.sutunsec.setGeometry(QtCore.QRect(190, 50, 61, 22))
+        self.sutunsec.setObjectName("sutunsec")
+        self.label_4 = QtWidgets.QLabel(self.centralwidget)
+        self.label_4.setGeometry(QtCore.QRect(0, 170, 111, 21))
+        self.label_4.setObjectName("label_4")
+        self.lineEdit_2 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_2.setGeometry(QtCore.QRect(110, 170, 81, 22))
+        self.lineEdit_2.setObjectName("lineEdit_2")
+        self.ayni1sutungoster = QtWidgets.QPushButton(self.centralwidget)
+        self.ayni1sutungoster.setGeometry(QtCore.QRect(200, 170, 93, 28))
+        self.ayni1sutungoster.setObjectName("ayni1sutungoster")
+        self.label_5 = QtWidgets.QLabel(self.centralwidget)
+        self.label_5.setGeometry(QtCore.QRect(300, 170, 111, 31))
+        self.label_5.setObjectName("label_5")
+        self.lineEdit_3 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_3.setGeometry(QtCore.QRect(410, 180, 81, 21))
+        self.lineEdit_3.setObjectName("lineEdit_3")
+        self.ayni2sutungoster = QtWidgets.QPushButton(self.centralwidget)
+        self.ayni2sutungoster.setGeometry(QtCore.QRect(500, 170, 93, 28))
+        self.ayni2sutungoster.setObjectName("ayni2sutungoster")
+        self.label_6 = QtWidgets.QLabel(self.centralwidget)
+        self.label_6.setGeometry(QtCore.QRect(0, 130, 161, 16))
+        self.label_6.setObjectName("label_6")
+        self.lineEdit_4 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_4.setGeometry(QtCore.QRect(170, 130, 113, 22))
+        self.lineEdit_4.setObjectName("lineEdit_4")
+        self.label_7 = QtWidgets.QLabel(self.centralwidget)
+        self.label_7.setGeometry(QtCore.QRect(300, 130, 91, 21))
+        self.label_7.setObjectName("label_7")
+        self.lineEdit_5 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_5.setGeometry(QtCore.QRect(400, 130, 41, 22))
+        self.lineEdit_5.setObjectName("lineEdit_5")
+        self.label_8 = QtWidgets.QLabel(self.centralwidget)
+        self.label_8.setGeometry(QtCore.QRect(20, 230, 81, 16))
+        self.label_8.setObjectName("label_8")
+        self.lineEdit_6 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_6.setGeometry(QtCore.QRect(120, 230, 51, 22))
+        self.lineEdit_6.setObjectName("lineEdit_6")
+        self.label_9 = QtWidgets.QLabel(self.centralwidget)
+        self.label_9.setGeometry(QtCore.QRect(200, 230, 111, 16))
+        self.label_9.setObjectName("label_9")
+        self.lineEdit_7 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_7.setGeometry(QtCore.QRect(330, 230, 111, 22))
+        self.lineEdit_7.setObjectName("lineEdit_7")
+        self.complaintidgetir = QtWidgets.QPushButton(self.centralwidget)
+        self.complaintidgetir.setGeometry(QtCore.QRect(120, 260, 411, 28))
+        self.complaintidgetir.setObjectName("complaintidgetir")
+        self.label_10 = QtWidgets.QLabel(self.centralwidget)
+        self.label_10.setGeometry(QtCore.QRect(20, 310, 81, 16))
+        self.label_10.setObjectName("label_10")
+        self.lineEdit_8 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_8.setGeometry(QtCore.QRect(80, 310, 51, 22))
+        self.lineEdit_8.setObjectName("lineEdit_8")
+        self.label_11 = QtWidgets.QLabel(self.centralwidget)
+        self.label_11.setGeometry(QtCore.QRect(180, 310, 111, 16))
+        self.label_11.setObjectName("label_11")
+        self.lineEdit_9 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_9.setGeometry(QtCore.QRect(300, 310, 111, 22))
+        self.lineEdit_9.setObjectName("lineEdit_9")
+        self.zipcodegetir = QtWidgets.QPushButton(self.centralwidget)
+        self.zipcodegetir.setGeometry(QtCore.QRect(110, 340, 421, 28))
+        self.zipcodegetir.setObjectName("zipcodegetir")
+        self.label_12 = QtWidgets.QLabel(self.centralwidget)
+        self.label_12.setGeometry(QtCore.QRect(460, 230, 91, 21))
+        self.label_12.setObjectName("label_12")
+        self.lineEdit_10 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_10.setGeometry(QtCore.QRect(560, 230, 41, 22))
+        self.lineEdit_10.setObjectName("lineEdit_10")
+        self.label_13 = QtWidgets.QLabel(self.centralwidget)
+        self.label_13.setGeometry(QtCore.QRect(430, 310, 91, 21))
+        self.label_13.setObjectName("label_13")
+        self.lineEdit_11 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_11.setGeometry(QtCore.QRect(540, 310, 41, 22))
+        self.lineEdit_11.setObjectName("lineEdit_11")
+        self.textBrowser = QtWidgets.QTextBrowser(self.centralwidget)
+        self.textBrowser.setGeometry(QtCore.QRect(105, 421, 401, 351))
+        self.textBrowser.setObjectName("textBrowser")
+        MainWindow.setCentralWidget(self.centralwidget)
+
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "Projem"))
+        self.label.setText(_translate("MainWindow", "Benzerlik Oranı"))
+        self.Birsutungoster.setText(_translate("MainWindow", "Girilen Sütuna Ait Benzerlik Oranına Eşit Ve Büyük Kayıtları Göster"))
+        self.label_2.setText(_translate("MainWindow", "  Kaç Thread Kullanmak İstiyorsunuz?"))
+        self.label_3.setText(_translate("MainWindow", "İşlem Yapmak İstediğiniz Sütun"))
+        self.label_4.setText(_translate("MainWindow", "Gösterilecek Sütun"))
+        self.ayni1sutungoster.setText(_translate("MainWindow", "1 Sütun Göster"))
+        self.label_5.setText(_translate("MainWindow", "Gösterilecek Sütun"))
+        self.ayni2sutungoster.setText(_translate("MainWindow", "2 Sütun Göster"))
+        self.label_6.setText(_translate("MainWindow", "Benzerliği Aranacak Sütun"))
+        self.label_7.setText(_translate("MainWindow", "Benzerlik Oranı"))
+        self.label_8.setText(_translate("MainWindow", "Complaint ID"))
+        self.label_9.setText(_translate("MainWindow", "Gösterilecek Sütun"))
+        self.complaintidgetir.setText(_translate("MainWindow", "Girilen Sütunda Complaint ID\'leri Aynı Olan Kayıtları Göster"))
+        self.label_10.setText(_translate("MainWindow", "Zıp Code"))
+        self.label_11.setText(_translate("MainWindow", "Gösterilecek Sütun"))
+        self.zipcodegetir.setText(_translate("MainWindow", "Girilen Sütunda Zıp Code\'ları Aynı Olan Kayıtları Göster"))
+        self.label_12.setText(_translate("MainWindow", "Benzerlik Oranı"))
+        self.label_13.setText(_translate("MainWindow", "Benzerlik Oranı"))
+
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>671</width>
+    <height>1003</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Projem</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QLineEdit" name="lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>50</y>
+      <width>41</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>50</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Benzerlik Oranı</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Birsutungoster">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>80</y>
+      <width>411</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Girilen Sütuna Ait Benzerlik Oranına Eşit Ve Büyük Kayıtları Göster</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>10</y>
+      <width>221</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>  Kaç Thread Kullanmak İstiyorsunuz?</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="threadsayisi">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>10</y>
+      <width>41</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>50</y>
+      <width>181</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>İşlem Yapmak İstediğiniz Sütun</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="sutunsec">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>50</y>
+      <width>61</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>170</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Gösterilecek Sütun</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_2">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>170</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ayni1sutungoster">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>170</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1 Sütun Göster</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>170</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Gösterilecek Sütun</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_3">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>180</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ayni2sutungoster">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>170</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>2 Sütun Göster</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>130</y>
+      <width>161</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Benzerliği Aranacak Sütun</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_4">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>130</y>
+      <width>113</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>130</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Benzerlik Oranı</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_5">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>130</y>
+      <width>41</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>230</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Complaint ID</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_6">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>230</y>
+      <width>51</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>230</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Gösterilecek Sütun</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_7">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>230</y>
+      <width>111</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="complaintidgetir">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>260</y>
+      <width>411</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Girilen Sütunda Complaint ID'leri Aynı Olan Kayıtları Göster</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>310</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Zıp Code</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_8">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>310</y>
+      <width>51</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>310</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Gösterilecek Sütun</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_9">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>310</y>
+      <width>111</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="zipcodegetir">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>340</y>
+      <width>421</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Girilen Sütunda Zıp Code'ları Aynı Olan Kayıtları Göster</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_12">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>230</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Benzerlik Oranı</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_10">
+    <property name="geometry">
+     <rect>
+      <x>560</x>
+      <y>230</y>
+      <width>41</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_13">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>310</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Benzerlik Oranı</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_11">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>310</y>
+      <width>41</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="textBrowser">
+    <property name="geometry">
+     <rect>
+      <x>105</x>
+      <y>421</y>
+      <width>401</width>
+      <height>351</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

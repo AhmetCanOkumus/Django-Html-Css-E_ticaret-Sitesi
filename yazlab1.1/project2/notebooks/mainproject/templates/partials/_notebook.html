@@ -1,0 +1,28 @@
+{% load static %}
+<div class="card">
+    <img src="{% static 'img/'|add:notebook.resim %}" class="card-img-top" alt="...">
+    <div class="card-body">
+      <h5 class="card-title">{{ notebook.modelismi }}</h5>
+      <p class="card-text">
+       
+
+        
+            <h5 class="card-title">{{ notebook.siteismi }}</h5>
+            
+        <button type="button" class="btn btn-dark"><div class="card" style="height:25px;width:100px;">
+          <img src="" class="card-img-top" alt="..." >
+          <div class="card-body">
+
+          </div>
+        </div> 
+      </button>
+      
+
+      <br>
+      <br>
+      <span style="font-size: 20px;">Fiyat : {{ notebook.fiyat }}</span>
+
+      </p>
+      <a href="{% url 'details' notebook.id %}" class="btn btn-dark">İncele</a>
+    </div>
+  </div>
